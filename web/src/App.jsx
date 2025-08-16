@@ -414,7 +414,7 @@ export default function App() {
 
         <div className="print-header" aria-hidden="true">
           <div className="print-brand">
-            <img className="print-logo-img" src="/favicon.svg" alt="" />
+            <img className="print-logo-img" src="./favicon.svg" alt="" />
             <div className="print-text">
               <div className="print-title">ecoSure</div>
               <div className="print-sub">Environmental Advice Report</div>
@@ -506,7 +506,7 @@ export default function App() {
 
         <footer className="site-footer">
           <div className="footer-left">
-            <img className="footer-logo" src="/favicon.svg" alt="" />
+            <img className="footer-logo" src="./favicon.svg" alt="" />
             <div className="footer-brand">ecoSure</div>
           </div>
           <div className="footer-meta">
