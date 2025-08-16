@@ -7,7 +7,8 @@ import fs from 'node:fs';
 import { toFile } from 'openai/uploads';
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
+const corsOrigin = process.env.CORS_ORIGIN || true;
+app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json());
 
 const upload = multer({ dest: 'uploads/' });

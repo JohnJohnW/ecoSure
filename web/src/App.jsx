@@ -9,7 +9,21 @@ import Particles from "./components/Particles.jsx";
 import Ripples from "./components/Ripples.jsx";
 import BiomeSwitch from "./components/BiomeSwitch.jsx";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+// Resolve API base URL with runtime overrides for static hosting environments
+const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io') ? '' : 'http://localhost:3001');
+let RUNTIME_API_BASE = DEFAULT_API_BASE;
+try {
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const apiParam = params?.get('api') || '';
+  const stored = typeof window !== 'undefined' ? (localStorage.getItem('eco.apiBase') || '') : '';
+  if (apiParam && /^https?:\/\//.test(apiParam)) {
+    localStorage.setItem('eco.apiBase', apiParam);
+    RUNTIME_API_BASE = apiParam;
+  } else if (stored && /^https?:\/\//.test(stored)) {
+    RUNTIME_API_BASE = stored;
+  }
+} catch {}
+const API_BASE = RUNTIME_API_BASE;
 
 /* ---------- Local storage helpers (single thread) ---------- */
 const LS_THREAD_ID = "eco.assistant.threadId";
