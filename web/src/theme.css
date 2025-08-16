@@ -198,7 +198,7 @@ input[type="file"]{ color:var(--muted); }
 .brand-wrap{ display:flex; align-items:flex-start; gap:14px; }
 /* Brand area uses favicon as logo */
 .brand-logo{ width:40px; height:40px; border-radius:12px; background: var(--panel); border:1px solid var(--border); position:relative; overflow:hidden }
-.brand-logo::before{ content:""; position:absolute; inset:0; background: conic-gradient(from 180deg at 50% 50%, #10b981, #0cb38f, #0ea5a7, #10b981); -webkit-mask: url('./favicon.svg') center / contain no-repeat; mask: url('./favicon.svg') center / contain no-repeat; }
+.brand-logo::before{ content:""; position:absolute; inset:0; background: conic-gradient(from 180deg at 50% 50%, #10b981, #0cb38f, #0ea5a7, #10b981); -webkit-mask: url('/ecoSure/favicon.svg') center / contain no-repeat; mask: url('/ecoSure/favicon.svg') center / contain no-repeat; }
 
 .brand-text{ display:flex; flex-direction:column; }
 .brand-text .title{ font-weight:800; font-size:22px; letter-spacing:.2px; line-height: 1.2; margin-bottom: 2px; }
