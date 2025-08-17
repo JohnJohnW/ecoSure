@@ -1,7 +1,5 @@
 # Assistants API Server (Streaming SSE)
 
-Live demo: https://johnjohnw.github.io/ecoSure/
-
 ## Setup
 1) cd server
 2) cp .env.example .env
@@ -22,13 +20,6 @@ Streams events:
 - event: error -> { "error": "..." }
 
 Health check: GET /health -> { ok: true }
-
-## Frontend (Vite React)
-- `web/` hosts the static site. Build with `npm --prefix web run build`.
-- When hosted on static Pages, set the API base at runtime:
-  - Append `?api=https://your-api.example.com` to the site URL, or
-  - In devtools: `localStorage.setItem('eco.apiBase', 'https://your-api.example.com')`
-  - This overrides `VITE_API_BASE_URL`.
 
 ## Evidence sources (RAG)
 The Assistant’s vector store now includes TERN (Terrestrial Ecosystem Research Network) resources alongside Queensland biodiversity/conservation legislation. The Assistant should consult and cite these resources where relevant:

@@ -5,25 +5,14 @@ import remarkGfm from "remark-gfm";
 import { AnimatePresence, motion } from "framer-motion";
 import { Send, Copy } from "lucide-react";
 import Glass from "./components/Glass.jsx";
+import Tilt from "./components/Tilt.jsx";
+import Float from "./components/Float.jsx";
+import TopProgress from "./components/TopProgress.jsx";
 import Particles from "./components/Particles.jsx";
 import Ripples from "./components/Ripples.jsx";
 import BiomeSwitch from "./components/BiomeSwitch.jsx";
 
-// Resolve API base URL with runtime overrides for static hosting environments
-const DEFAULT_API_BASE = import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io') ? '' : 'http://localhost:3001');
-let RUNTIME_API_BASE = DEFAULT_API_BASE;
-try {
-  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const apiParam = params?.get('api') || '';
-  const stored = typeof window !== 'undefined' ? (localStorage.getItem('eco.apiBase') || '') : '';
-  if (apiParam && /^https?:\/\//.test(apiParam)) {
-    localStorage.setItem('eco.apiBase', apiParam);
-    RUNTIME_API_BASE = apiParam;
-  } else if (stored && /^https?:\/\//.test(stored)) {
-    RUNTIME_API_BASE = stored;
-  }
-} catch {}
-const API_BASE = RUNTIME_API_BASE;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 /* ---------- Local storage helpers (single thread) ---------- */
 const LS_THREAD_ID = "eco.assistant.threadId";
@@ -201,19 +190,24 @@ function Report({ text, attachments, streaming }){
             {attachments.map((p, i) => {
               if (p.type === 'image') {
                 return (
-                  <img
-                    key={i}
-                    alt="attachment"
-                    src={`${API_BASE}/api/files/${p.file_id}`}
-                    onClick={()=>setLightbox(`${API_BASE}/api/files/${p.file_id}`)}
-                    loading="lazy"
-                    style={{ maxWidth: 360, borderRadius: 12, border: "1px solid var(--glass-border)" }}
-                  />
+                  <Tilt as="div" key={i} max={5} scale={1.015} style={{ display:'inline-block' }}>
+                    <img
+                      alt="attachment"
+                      src={`${API_BASE}/api/files/${p.file_id}`}
+                      onClick={()=>setLightbox(`${API_BASE}/api/files/${p.file_id}`)}
+                      loading="lazy"
+                      style={{ maxWidth: 360, borderRadius: 12, border: "1px solid var(--glass-border)" }}
+                    />
+                  </Tilt>
                 );
               }
               if (p.type === 'file') {
                 const href = `${API_BASE}/api/files/${p.file_id}`;
-                return <a className="attachment" key={i} href={href} download>📄 {p.filename || p.file_id}</a>;
+                return (
+                  <Tilt as="div" key={i} max={4} style={{ display:'inline-block' }}>
+                    <a className="attachment" href={href} download>📄 {p.filename || p.file_id}</a>
+                  </Tilt>
+                );
               }
               return null;
             })}
@@ -402,11 +396,12 @@ export default function App() {
 
   return (
     <div className="app">
+      <TopProgress active={isLoading || isStreaming} />
       <Particles count={biome==='Coastal' ? 14 : biome==='River' ? 10 : 12} biome={biome} />
       <Ripples intensity={biome==='Coastal' ? 0.14 : biome==='River' ? 0.18 : 0.12} />
       <section className="card main">
         <div className="header">
-          <Brand />
+          <Float amplitude={3} duration={4}><Brand /></Float>
           <div className="header-tools">
             <BiomeSwitch value={biome} onChange={setBiome} />
           </div>
@@ -414,7 +409,7 @@ export default function App() {
 
         <div className="print-header" aria-hidden="true">
           <div className="print-brand">
-            <img className="print-logo-img" src="./favicon.svg" alt="" />
+            <img className="print-logo-img" src="/favicon.svg" alt="" />
             <div className="print-text">
               <div className="print-title">ecoSure</div>
               <div className="print-sub">Environmental Advice Report</div>
@@ -436,17 +431,15 @@ export default function App() {
           <Glass className="composer" as="div" key="composer-pane">
             <label htmlFor="prompt" style={{ display: "block", fontSize:14, color:'var(--muted)' }}>Details (optional)</label>
             <textarea id="prompt" ref={inputRef} onInput={(e)=>setDraft(e.currentTarget.value)} onKeyDown={onKeyDown} placeholder="Describe your project or question for environmental advice" />
-            <div style={{ display:'flex', alignItems:'center', gap:10, marginTop: 8 }}>
-              <label className="btn" style={{ display:'inline-flex', alignItems:'center', gap:8 }}>
-                <input type="file" multiple onChange={(e)=>setFiles(Array.from(e.target.files || []))} style={{ display:'none' }} />
-                Choose files
-              </label>
-              {files.length>0 && <div className="tag">{files.length} file(s) selected</div>}
-            </div>
-            <div className="btn-row">
-              <div></div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, marginTop: 8, flexWrap:'wrap' }}>
+              <div style={{ display:'inline-flex', alignItems:'center', gap:10 }}>
+                <label className="btn" style={{ display:'inline-flex', alignItems:'center', gap:8 }}>
+                  <input type="file" multiple onChange={(e)=>setFiles(Array.from(e.target.files || []))} style={{ display:'none' }} />
+                  Choose files
+                </label>
+                {files.length>0 && <div className="tag">{files.length} file(s) selected</div>}
+              </div>
               <div>
-                <button className="btn" onPointerDown={onButtonPointer} onClick={()=>{ navigator.clipboard.writeText(reportText || ""); setToast("Copied insights"); setTimeout(()=>setToast(""), 1800); }} disabled={isLoading}><Copy size={16} style={{ verticalAlign:'text-bottom' }}/> Copy insights</button>
                 <button type="button" className="btn primary" onPointerDown={onButtonPointer} onClick={send} disabled={!canSend}><Send size={16} style={{ verticalAlign:'text-bottom' }}/> {isLoading ? "Analysing…" : "Analyse"}</button>
               </div>
             </div>
@@ -493,6 +486,9 @@ export default function App() {
                 exit={{ opacity: 0, y: -6 }}
                 transition={{ duration: 0.18 }}
               >
+                <div style={{ display:'flex', justifyContent:'flex-end', padding:'8px 12px' }}>
+                  <button className="btn" onPointerDown={onButtonPointer} onClick={()=>{ navigator.clipboard.writeText(reportText || ""); setToast("Copied insights"); setTimeout(()=>setToast(""), 1800); }} disabled={isLoading}><Copy size={16} style={{ verticalAlign:'text-bottom' }}/> Copy insights</button>
+                </div>
                 <Report text={reportText} attachments={reportAttachments} streaming={isCurrentStreaming} />
               </motion.div>
             </AnimatePresence>
@@ -506,7 +502,7 @@ export default function App() {
 
         <footer className="site-footer">
           <div className="footer-left">
-            <img className="footer-logo" src="./favicon.svg" alt="" />
+            <img className="footer-logo" src="/favicon.svg" alt="" />
             <div className="footer-brand">ecoSure</div>
           </div>
           <div className="footer-meta">
