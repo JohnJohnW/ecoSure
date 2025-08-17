@@ -13,6 +13,7 @@ import Ripples from "./components/Ripples.jsx";
 import BiomeSwitch from "./components/BiomeSwitch.jsx";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const IS_PAGES = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
 
 /* ---------- Local storage helpers (single thread) ---------- */
 const LS_THREAD_ID = "eco.assistant.threadId";
@@ -289,6 +290,18 @@ export default function App() {
     const val = (inputRef.current?.value ?? draft) || "";
     if ((!val.trim() && files.length === 0) || isLoading) return;
 
+    // If running on GitHub Pages (static hosting) and API_BASE points to localhost
+    // we inform the user that a local backend is required.
+    try {
+      const url = new URL(API_BASE);
+      const isLocal = ["localhost", "127.0.0.1"].includes(url.hostname);
+      if (IS_PAGES && isLocal) {
+        setToast("Backend unavailable on GitHub Pages. Run the server locally and set VITE_API_BASE_URL.");
+        setTimeout(()=>setToast(""), 3200);
+        return;
+      }
+    } catch {}
+
     const nowSec = Math.floor(Date.now()/1000);
     setIsLoading(true);
     setIsStreaming(true);
@@ -311,11 +324,27 @@ export default function App() {
         const payload = threadId && threadId.startsWith('thread_') ? { message: val, threadId } : { message: val };
         resp = await fetch(`${API_BASE}/api/chat/stream`, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "text/event-stream" }, body: JSON.stringify(payload) });
       }
-    } catch (e) { setIsLoading(false); setIsStreaming(false); setErrorMsg(`Network error: ${String(e)}`); return; }
+    } catch (e) {
+      setIsLoading(false); setIsStreaming(false);
+      const msg = IS_PAGES
+        ? "Backend not reachable from GitHub Pages. Please run the server locally and set VITE_API_BASE_URL."
+        : `Network error: ${String(e)}`;
+      setErrorMsg(msg);
+      setToast(msg); setTimeout(()=>setToast(""), 3600);
+      return;
+    }
 
     if (inputRef.current) inputRef.current.value = ""; setDraft(""); setFiles([]);
 
-    if (!resp.body) { setIsLoading(false); setIsStreaming(false); setErrorMsg("No response body from server."); return; }
+    if (!resp.body) {
+      setIsLoading(false); setIsStreaming(false);
+      const msg = IS_PAGES
+        ? "Backend not reachable from GitHub Pages. Please run the server locally and set VITE_API_BASE_URL."
+        : "No response body from server.";
+      setErrorMsg(msg);
+      setToast(msg); setTimeout(()=>setToast(""), 3600);
+      return;
+    }
 
     const reader = resp.body.getReader();
     const decoder = new TextDecoder("utf-8");
@@ -409,7 +438,7 @@ export default function App() {
 
         <div className="print-header" aria-hidden="true">
           <div className="print-brand">
-            <img className="print-logo-img" src="/favicon.svg" alt="" />
+            <img className="print-logo-img" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
             <div className="print-text">
               <div className="print-title">ecoSure</div>
               <div className="print-sub">Environmental Advice Report</div>
@@ -502,7 +531,7 @@ export default function App() {
 
         <footer className="site-footer">
           <div className="footer-left">
-            <img className="footer-logo" src="/favicon.svg" alt="" />
+            <img className="footer-logo" src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" />
             <div className="footer-brand">ecoSure</div>
           </div>
           <div className="footer-meta">
