@@ -1,6 +1,6 @@
 # Assistants API Server (Streaming SSE)
 
-<!-- Redeploy trigger -->
+## Redeploy Trigger - Original ecoSure App Restored
 ## Setup
 1) cd server
 2) cp .env.example .env
