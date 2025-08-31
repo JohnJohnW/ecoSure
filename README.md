@@ -38,3 +38,7 @@ RAG keyword boosts to include in retrieval configuration: "TERN", "Australia’s
 
 Output format remains unchanged (three sections: numbered concerns, summary, Eco-Score JSON at the end in a fenced JSON block).
 
+
+## REDEPLOY TRIGGER - Original ecoSure App
+This section ensures GitHub Pages redeploys with the original ecoSure application.
+
