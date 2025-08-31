@@ -1,5 +1,6 @@
 # Assistants API Server (Streaming SSE)
 
+<!-- Redeploy trigger -->
 ## Setup
 1) cd server
 2) cp .env.example .env
